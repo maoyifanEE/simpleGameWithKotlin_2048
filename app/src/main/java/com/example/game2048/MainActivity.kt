@@ -3,8 +3,11 @@ package com.example.game2048
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.view.MotionEventCompat
 import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +19,8 @@ class MainActivity : AppCompatActivity() {
         goToFragment(ClassicGameFragment())
 
     }
+
+
 
     private fun goToFragment(fragment: Fragment) {
         supportFragmentManager
