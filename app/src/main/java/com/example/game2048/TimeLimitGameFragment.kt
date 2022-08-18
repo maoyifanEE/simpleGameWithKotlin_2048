@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
-class GameFragment : Fragment() {
+class TimeLimitGameFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view : View = inflater.inflate(R.layout.fragment_game,container,false)
+        val view : View = inflater.inflate(R.layout.fragment_time_limit_game,container,false)
 
         return view
     }
