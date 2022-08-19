@@ -54,16 +54,16 @@ class ClassicGameFragment : Fragment() {
             gameViewModel.gameInit(textArray)
         }
         btnUp.setOnClickListener {
-            gameViewModel.swipeUp()
+            gameViewModel.swipeUp(textArray)
         }
         btnDown.setOnClickListener {
-            gameViewModel.swipeDown()
+            gameViewModel.swipeDown(textArray)
         }
         btnLeft.setOnClickListener {
             gameViewModel.swipeLeft(textArray)
         }
         btnRight.setOnClickListener {
-            gameViewModel.swipeRight()
+            gameViewModel.swipeRight(textArray)
         }
 
         gameViewModel.gameInit(textArray)

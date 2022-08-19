@@ -69,12 +69,14 @@ class ClassicGameViewModel: ViewModel() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeLeft(textArray: Array<Array<TextView>>){
         var tempColumn : Int
+        var move_flag = false
         for(row in 0..3){
             for(column in 0..3){
                 tempColumn = column
                 if(isNotEmpty(numArray[row][column])){
                     while(leftIsEmpty(row,tempColumn)){
                         moveLeft(row,tempColumn)
+                        move_flag = true
                         tempColumn--
                     }
                     if(tempColumn>=1){
@@ -87,9 +89,100 @@ class ClassicGameViewModel: ViewModel() {
 
             }
         }
-        generateNum()
+        if(move_flag){
+            generateNum()
+        }
         updateGame(textArray)
     }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun swipeRight(textArray: Array<Array<TextView>>){
+        var tempColumn : Int
+        var move_flag = false
+        for(row in 0..3){
+            for(column in 0..3){
+                tempColumn = column
+                if(isNotEmpty(numArray[row][column])){
+                    while(rightIsEmpty(row,tempColumn)){
+                        moveRight(row,tempColumn)
+                        move_flag = true
+                        tempColumn++
+                    }
+                    if(tempColumn<=2){
+                        if(numArray[row][tempColumn] == numArray[row][tempColumn+1]){
+                            mergeRightNum(row,tempColumn)
+                            numArray[row][tempColumn] = 0
+                        }
+                    }
+                }
+
+            }
+        }
+        if(move_flag){
+            generateNum()
+        }
+        updateGame(textArray)
+    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun swipeUp(textArray: Array<Array<TextView>>){
+        var tempRow : Int
+        var move_flag = false
+        for(row in 0..3){
+            for(column in 0..3){
+                tempRow = row
+                if(isNotEmpty(numArray[row][column])){
+                    while(upIsEmpty(tempRow,column)){
+                        moveUp(tempRow,column)
+                        move_flag = true
+                        tempRow--
+                    }
+                    if(tempRow>=1){
+                        if(numArray[tempRow][column] == numArray[tempRow-1][column]){
+                            mergeUpNum(tempRow,column)
+                            numArray[tempRow][column] = 0
+                        }
+                    }
+                }
+
+            }
+        }
+        if(move_flag){
+            generateNum()
+        }
+        updateGame(textArray)
+    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun swipeDown(textArray: Array<Array<TextView>>){
+        var tempRow : Int
+        var move_flag = false
+        for(row in 0..3){
+            for(column in 0..3){
+                tempRow = row
+                if(isNotEmpty(numArray[row][column])){
+                    while(downIsEmpty(tempRow,column)){
+                        moveDown(tempRow,column)
+                        move_flag = true
+                        tempRow++
+                    }
+                    if(tempRow<=2){
+                        if(numArray[tempRow][column] == numArray[tempRow+1][column]){
+                            mergeDownNum(tempRow,column)
+                            numArray[tempRow][column] = 0
+                        }
+                    }
+                }
+
+            }
+        }
+        if(move_flag){
+            generateNum()
+        }
+        updateGame(textArray)
+    }
+
+
+
+
 
     private fun mergeLeftNum(row: Int, column: Int) {
         for(i in 0 until constantManager.numUnitList.size-1){
@@ -102,18 +195,97 @@ class ClassicGameViewModel: ViewModel() {
             Toast.makeText(pContext,"success",Toast.LENGTH_SHORT).show()
         }
     }
+    private fun mergeRightNum(row: Int, column: Int) {
+        for(i in 0 until constantManager.numUnitList.size-1){
+            if(numArray[row][column+1] == constantManager.numUnitList[i].num){
+                numArray[row][column+1] = constantManager.numUnitList[i+1].num
+                return
+            }
+        }
+        if(numArray[row][column] == constantManager.numUnitList[constantManager.numUnitList.size-1].num){
+            Toast.makeText(pContext,"success",Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun mergeUpNum(row: Int, column: Int) {
+        for(i in 0 until constantManager.numUnitList.size-1){
+            if(numArray[row-1][column] == constantManager.numUnitList[i].num){
+                numArray[row-1][column] = constantManager.numUnitList[i+1].num
+                return
+            }
+        }
+        if(numArray[row][column] == constantManager.numUnitList[constantManager.numUnitList.size-1].num){
+            Toast.makeText(pContext,"success",Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun mergeDownNum(row: Int, column: Int) {
+        for(i in 0 until constantManager.numUnitList.size-1){
+            if(numArray[row+1][column] == constantManager.numUnitList[i].num){
+                numArray[row+1][column] = constantManager.numUnitList[i+1].num
+                return
+            }
+        }
+        if(numArray[row][column] == constantManager.numUnitList[constantManager.numUnitList.size-1].num){
+            Toast.makeText(pContext,"success",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+
+
 
     private fun moveLeft(row: Int,column: Int){
         numArray[row][column-1] = numArray[row][column]
         numArray[row][column] = 0
     }
+    private fun moveRight(row: Int,column: Int){
+        numArray[row][column+1] = numArray[row][column]
+        numArray[row][column] = 0
+    }
+    private fun moveUp(row: Int,column: Int){
+        numArray[row-1][column] = numArray[row][column]
+        numArray[row][column] = 0
+    }
+    private fun moveDown(row: Int,column: Int){
+        numArray[row+1][column] = numArray[row][column]
+        numArray[row][column] = 0
+    }
+
+
+
+
+
+
+
 
     private fun leftIsEmpty(row: Int,column: Int): Boolean {
         if((column-1)<0){
             return false
         }
-        return !isNotEmpty(numArray[row][column-1]) && ((column-1) >= 0)
+        return !isNotEmpty(numArray[row][column-1])
     }
+    private fun rightIsEmpty(row: Int,column: Int): Boolean {
+        if((column+1)>3){
+            return false
+        }
+        return !isNotEmpty(numArray[row][column+1])
+    }
+    private fun upIsEmpty(row: Int,column: Int): Boolean {
+        if((row-1)<0){
+            return false
+        }
+        return !isNotEmpty(numArray[row-1][column])
+    }
+    private fun downIsEmpty(row: Int,column: Int): Boolean {
+        if((row+1)>3){
+            return false
+        }
+        return !isNotEmpty(numArray[row+1][column])
+    }
+
+
+
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun updateGame(textArray: Array<Array<TextView>>) {
@@ -156,17 +328,7 @@ class ClassicGameViewModel: ViewModel() {
         return i != 0
     }
 
-    fun swipeRight(){
 
-    }
-
-    fun swipeUp(){
-
-    }
-
-    fun swipeDown(){
-
-    }
 
 
 
