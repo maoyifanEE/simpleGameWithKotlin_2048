@@ -1,16 +1,19 @@
 package com.example.game2048.Fragment
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.game2048.ClassicGameViewModel
 import com.example.game2048.R
 
 class ClassicGameFragment : Fragment() {
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,7 +53,20 @@ class ClassicGameFragment : Fragment() {
         btnRestart.setOnClickListener {
             gameViewModel.gameInit(textArray)
         }
+        btnUp.setOnClickListener {
+            gameViewModel.swipeUp()
+        }
+        btnDown.setOnClickListener {
+            gameViewModel.swipeDown()
+        }
+        btnLeft.setOnClickListener {
+            gameViewModel.swipeLeft(textArray)
+        }
+        btnRight.setOnClickListener {
+            gameViewModel.swipeRight()
+        }
 
+        gameViewModel.gameInit(textArray)
 
 
 
