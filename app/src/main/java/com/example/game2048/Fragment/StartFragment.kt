@@ -1,4 +1,4 @@
-package com.example.game2048
+package com.example.game2048.Fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.example.game2048.R
 
 class StartFragment : Fragment() {
     override fun onCreateView(
