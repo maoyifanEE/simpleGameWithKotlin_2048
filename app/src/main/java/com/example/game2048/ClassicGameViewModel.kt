@@ -1,24 +1,18 @@
 package com.example.game2048
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.os.SystemClock
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.sign
 
 
 class ClassicGameViewModel: ViewModel() {
-    val numArray = Array(4) { Array(4) { it -> 0 } }
+    private val numArray = Array(4) { Array(4) { it -> 0 } }
+    private val numLastStepArray = Array(4) { Array(4) { it -> 0 } }
     @SuppressLint("StaticFieldLeak")
     lateinit var pContext : Context
 
@@ -29,10 +23,13 @@ class ClassicGameViewModel: ViewModel() {
     //Initialize the game, randomly select three positions to initialize to 2, the positions can be repeated
     @SuppressLint("ResourceAsColor")
     @RequiresApi(Build.VERSION_CODES.M)
-    fun gameInit(textArray: Array<Array<TextView>>) {
+    fun gameInit(textArray: Array<Array<TextView>>, textBackgroundArray: Array<Array<TextView>>) {
         var randomNum : Int
-        var row : Int
-        var column : Int
+        for(row in 0..3){
+            for(column in 0..3){
+                textBackgroundArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
+            }
+        }
         for(row in 0..3){
             for(column in 0..3){
                 numArray[row][column] = 0
@@ -44,13 +41,12 @@ class ClassicGameViewModel: ViewModel() {
 
         repeat(3){
             randomNum = (0..15).random()
-            row = randomNum/4
-            column = randomNum%4
-            numArray[row][column] = constantManager.numUnitList[0].num
-            textArray[row][column].text = constantManager.numUnitList[0].num.toString()
-            textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[0].textColor)))
-            textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[0].backgroundColor)))
+            numArray[randomNum/4][randomNum%4] = constantManager.numUnitList[0].num
+            textArray[randomNum/4][randomNum%4].text = constantManager.numUnitList[0].num.toString()
+            textArray[randomNum/4][randomNum%4].setTextColor(pContext.getColor((constantManager.numUnitList[0].textColor)))
+            textArray[randomNum/4][randomNum%4].setBackgroundColor(pContext.getColor((constantManager.numUnitList[0].backgroundColor)))
         }
+
     }
 
     //Add a new random number every time the user survive
@@ -64,12 +60,14 @@ class ClassicGameViewModel: ViewModel() {
                 done = true
             }
         }while (!done)
+//        Log.d("mao","The random position is ${randomPos/4},${randomPos%4}")
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeLeft(textArray: Array<Array<TextView>>){
         var tempColumn : Int
         var move_flag = false
+        storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempColumn = column
@@ -89,16 +87,21 @@ class ClassicGameViewModel: ViewModel() {
 
             }
         }
+        moveAnimation()
         if(move_flag){
             generateNum()
         }
         updateGame(textArray)
+        if(gameLose()){
+            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeRight(textArray: Array<Array<TextView>>){
         var tempColumn : Int
         var move_flag = false
+        storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempColumn = column
@@ -122,11 +125,15 @@ class ClassicGameViewModel: ViewModel() {
             generateNum()
         }
         updateGame(textArray)
+        if(gameLose()){
+            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+        }
     }
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeUp(textArray: Array<Array<TextView>>){
         var tempRow : Int
         var move_flag = false
+        storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempRow = row
@@ -150,11 +157,18 @@ class ClassicGameViewModel: ViewModel() {
             generateNum()
         }
         updateGame(textArray)
+        if(gameLose()){
+            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+        }
     }
+
+
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeDown(textArray: Array<Array<TextView>>){
         var tempRow : Int
         var move_flag = false
+        storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempRow = row
@@ -178,6 +192,9 @@ class ClassicGameViewModel: ViewModel() {
             generateNum()
         }
         updateGame(textArray)
+        if(gameLose()){
+            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -312,8 +329,43 @@ class ClassicGameViewModel: ViewModel() {
                         textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[3].textColor)))
                         textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[3].backgroundColor)))
                     }
+                    32 -> {
+                        textArray[row][column].text = constantManager.numUnitList[4].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[4].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[4].backgroundColor)))
+                    }
+                    64 -> {
+                        textArray[row][column].text = constantManager.numUnitList[5].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[5].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[5].backgroundColor)))
+                    }
+                    128 -> {
+                        textArray[row][column].text = constantManager.numUnitList[6].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[6].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[6].backgroundColor)))
+                    }
+                    256 -> {
+                        textArray[row][column].text = constantManager.numUnitList[7].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[7].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[7].backgroundColor)))
+                    }
+                    512 -> {
+                        textArray[row][column].text = constantManager.numUnitList[8].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[8].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[8].backgroundColor)))
+                    }
+                    1024 -> {
+                        textArray[row][column].text = constantManager.numUnitList[9].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[9].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[9].backgroundColor)))
+                    }
+                    2048 -> {
+                        textArray[row][column].text = constantManager.numUnitList[10].num.toString()
+                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[10].textColor)))
+                        textArray[row][column].setBackgroundColor(pContext.getColor((constantManager.numUnitList[10].backgroundColor)))
+                    }
                     else -> {
-                        textArray[row][column].text = "${numArray[row][column]}"
+                        textArray[row][column].text = ""
                         textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[0].textColor)))
                         textArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
                     }
@@ -322,12 +374,92 @@ class ClassicGameViewModel: ViewModel() {
         }
     }
 
-
+    private fun gameLose(): Boolean {
+        for(row in 0..3){
+            for(column in 0..3){
+                if(numArray[row][column] == 0){
+                    return false
+                }
+                if((row-1) >= 0){
+                    if(numArray[row][column] == numArray[row-1][column]){
+                        return false
+                    }
+                }
+                if((row+1) <= 3){
+                    if(numArray[row][column] == numArray[row+1][column]){
+                        return false
+                    }
+                }
+                if((column-1) >= 0){
+                    if(numArray[row][column] == numArray[row][column-1]){
+                        return false
+                    }
+                }
+                if((column+1) <= 3){
+                    if(numArray[row][column] == numArray[row][column+1]){
+                        return false
+                    }
+                }
+            }
+        }
+        return true
+    }
 
     private fun isNotEmpty(i: Int): Boolean {
         return i != 0
     }
 
+    private fun storeLastStep(){
+        for(row in 0..3){
+            for(column in 0..3){
+                numLastStepArray[row][column] = numArray[row][column]
+            }
+        }
+    }
+
+    private fun moveAnimation() {
+
+    }
+
+    private fun moveAnimationAchieve(textArray: Array<Array<TextView>>,row:Int,column:Int,unit:Int,direction:String) {
+        when(direction){
+            "Up" -> {
+                ObjectAnimator.ofFloat(textArray[row][column],
+                    "translationY",
+                    -unit*constantManager.unitDistance).apply {
+                    duration = constantManager.animationMoveTime
+                    start()
+                }
+            }
+            "Down" -> {
+                ObjectAnimator.ofFloat(textArray[row][column],
+                    "translationY",
+                    unit*constantManager.unitDistance).apply {
+                    duration = constantManager.animationMoveTime
+                    start()
+                }
+            }
+            "Left" -> {
+                ObjectAnimator.ofFloat(textArray[row][column],
+                    "translationX",
+                    -unit*constantManager.unitDistance).apply {
+                    duration = constantManager.animationMoveTime
+                    start()
+                }
+            }
+            "Right" -> {
+                ObjectAnimator.ofFloat(textArray[row][column],
+                    "translationX",
+                    unit*constantManager.unitDistance).apply {
+                    duration = constantManager.animationMoveTime
+                    start()
+                }
+            }
+            else -> {
+                Toast.makeText(pContext,"Invalid direction",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 

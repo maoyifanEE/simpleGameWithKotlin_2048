@@ -14,6 +14,8 @@ public class Constant {
         numUnit(1024,R.color.purple_700,R.color.purple_200),
         numUnit(2048,R.color.white,R.color.teal_200)
     )
+    val unitDistance = 335f
+    val animationMoveTime = 500L
 }
 
 val constantManager = Constant()

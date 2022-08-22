@@ -28,6 +28,9 @@ class ClassicGameFragment : Fragment() {
         val textArray = Array<Array<TextView>>(4){Array<TextView>(4){it->view.findViewById<TextView>(
             R.id.fragment_classicGame_tv_00
         )} }
+        val textBackgroundArray = Array<Array<TextView>>(4){Array<TextView>(4){it->view.findViewById<TextView>(
+            R.id.fragment_classicGameBackground_tv_00
+        )} }
         textArray[0][0] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_00)
         textArray[0][1] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_01)
         textArray[0][2] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_02)
@@ -44,14 +47,34 @@ class ClassicGameFragment : Fragment() {
         textArray[3][1] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_31)
         textArray[3][2] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_32)
         textArray[3][3] = view.findViewById<TextView>(R.id.fragment_classicGame_tv_33)
+
+        textBackgroundArray[0][0] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_00)
+        textBackgroundArray[0][1] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_01)
+        textBackgroundArray[0][2] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_02)
+        textBackgroundArray[0][3] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_03)
+        textBackgroundArray[1][0] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_10)
+        textBackgroundArray[1][1] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_11)
+        textBackgroundArray[1][2] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_12)
+        textBackgroundArray[1][3] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_13)
+        textBackgroundArray[2][0] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_20)
+        textBackgroundArray[2][1] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_21)
+        textBackgroundArray[2][2] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_22)
+        textBackgroundArray[2][3] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_23)
+        textBackgroundArray[3][0] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_30)
+        textBackgroundArray[3][1] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_31)
+        textBackgroundArray[3][2] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_32)
+        textBackgroundArray[3][3] = view.findViewById<TextView>(R.id.fragment_classicGameBackground_tv_33)
         val btnUp = view.findViewById<Button>(R.id.fragment_classicGame_btn_up)
         val btnDown = view.findViewById<Button>(R.id.fragment_classicGame_btn_down)
         val btnLeft = view.findViewById<Button>(R.id.fragment_classicGame_btn_left)
         val btnRight = view.findViewById<Button>(R.id.fragment_classicGame_btn_right)
         val btnRestart = view.findViewById<Button>(R.id.fragment_classicGame_btn_restart)
 
+
+
+        gameViewModel.gameInit(textArray,textBackgroundArray)
         btnRestart.setOnClickListener {
-            gameViewModel.gameInit(textArray)
+            gameViewModel.gameInit(textArray, textBackgroundArray)
         }
         btnUp.setOnClickListener {
             gameViewModel.swipeUp(textArray)
@@ -66,29 +89,15 @@ class ClassicGameFragment : Fragment() {
             gameViewModel.swipeRight(textArray)
         }
 
-        gameViewModel.gameInit(textArray)
 
 
 
 
-//        animation
-//        ObjectAnimator.ofFloat(tv1,"translationX",100f).apply {
-//            duration = 1000
-//            start()
-//            GlobalScope.launch {
-//                delay(1000)
-//                tv1.setText("4")
-//            }
-//        }
-//        GlobalScope.launch {
-//            delay(3000)
-//            goToFragment(ClassicGameFragment())
-//        }
+
 
 
         return view
     }
-
 
     private fun goToFragment(fragment: Fragment) {
 
