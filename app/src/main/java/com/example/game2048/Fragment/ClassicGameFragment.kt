@@ -2,6 +2,7 @@ package com.example.game2048.Fragment
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.example.game2048.ClassicGameViewModel
 import com.example.game2048.R
 
 class ClassicGameFragment : Fragment() {
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -22,7 +24,11 @@ class ClassicGameFragment : Fragment() {
         val view : View = inflater.inflate(R.layout.fragment_classic_game,container,false)
 
 
+        val gameSharedPref = requireActivity().getSharedPreferences("gamePref",0)
+        val gameEditor = gameSharedPref.edit()
+
         val gameViewModel = ViewModelProvider(this).get(ClassicGameViewModel::class.java)
+
         context?.let { gameViewModel.getContext(it) }
 
         val textArray = Array<Array<TextView>>(4){Array<TextView>(4){it->view.findViewById<TextView>(
@@ -98,6 +104,7 @@ class ClassicGameFragment : Fragment() {
 
         return view
     }
+
 
     private fun goToFragment(fragment: Fragment) {
 

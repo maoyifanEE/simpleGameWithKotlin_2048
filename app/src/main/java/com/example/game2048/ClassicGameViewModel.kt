@@ -4,15 +4,20 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.animation.doOnEnd
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.*
 
 
 class ClassicGameViewModel: ViewModel() {
     private val numArray = Array(4) { Array(4) { it -> 0 } }
     private val numLastStepArray = Array(4) { Array(4) { it -> 0 } }
+    private val changedPosList = mutableListOf<Int>() //偶数存储原位置，偶数+1存储改变后位置
     @SuppressLint("StaticFieldLeak")
     lateinit var pContext : Context
 
@@ -66,15 +71,20 @@ class ClassicGameViewModel: ViewModel() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeLeft(textArray: Array<Array<TextView>>){
         var tempColumn : Int
-        var move_flag = false
+        var moveDone = false
+        var addDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempColumn = column
                 if(isNotEmpty(numArray[row][column])){
                     while(leftIsEmpty(row,tempColumn)){
+                        if(tempColumn == column){
+                            changedPosList.add(row*4+column)
+                            addDone = true
+                        }
                         moveLeft(row,tempColumn)
-                        move_flag = true
+                        moveDone = true
                         tempColumn--
                     }
                     if(tempColumn>=1){
@@ -83,15 +93,19 @@ class ClassicGameViewModel: ViewModel() {
                             numArray[row][tempColumn] = 0
                         }
                     }
+                    if(addDone){
+                        changedPosList.add(row*4+tempColumn)
+                        addDone = false
+                    }
                 }
 
             }
         }
-        moveAnimation()
-        if(move_flag){
+
+        moveAnimation(textArray,"Horizontal")
+        if(moveDone){
             generateNum()
         }
-        updateGame(textArray)
         if(gameLose()){
             Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
         }
@@ -100,15 +114,20 @@ class ClassicGameViewModel: ViewModel() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeRight(textArray: Array<Array<TextView>>){
         var tempColumn : Int
-        var move_flag = false
+        var moveDone = false
+        var addDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempColumn = column
                 if(isNotEmpty(numArray[row][column])){
                     while(rightIsEmpty(row,tempColumn)){
+                        if(tempColumn == column){
+                            changedPosList.add(row*4+column)
+                            addDone = true
+                        }
                         moveRight(row,tempColumn)
-                        move_flag = true
+                        moveDone = true
                         tempColumn++
                     }
                     if(tempColumn<=2){
@@ -117,30 +136,39 @@ class ClassicGameViewModel: ViewModel() {
                             numArray[row][tempColumn] = 0
                         }
                     }
+                    if(addDone){
+                        changedPosList.add(row*4+tempColumn)
+                        addDone = false
+                    }
                 }
 
             }
         }
-        if(move_flag){
+        moveAnimation(textArray,"Horizontal")
+        if(moveDone){
             generateNum()
         }
-        updateGame(textArray)
         if(gameLose()){
-            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+            Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
     }
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeUp(textArray: Array<Array<TextView>>){
         var tempRow : Int
-        var move_flag = false
+        var moveDone = false
+        var addDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempRow = row
                 if(isNotEmpty(numArray[row][column])){
                     while(upIsEmpty(tempRow,column)){
+                        if(tempRow == row){
+                            changedPosList.add(row*4+column)
+                            addDone = true
+                        }
                         moveUp(tempRow,column)
-                        move_flag = true
+                        moveDone = true
                         tempRow--
                     }
                     if(tempRow>=1){
@@ -149,16 +177,20 @@ class ClassicGameViewModel: ViewModel() {
                             numArray[tempRow][column] = 0
                         }
                     }
+                    if(addDone){
+                        changedPosList.add(tempRow*4+column)
+                        addDone = false
+                    }
                 }
 
             }
         }
-        if(move_flag){
+        moveAnimation(textArray,"Vertical")
+        if(moveDone){
             generateNum()
         }
-        updateGame(textArray)
         if(gameLose()){
-            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+            Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -167,15 +199,20 @@ class ClassicGameViewModel: ViewModel() {
     @RequiresApi(Build.VERSION_CODES.M)
     fun swipeDown(textArray: Array<Array<TextView>>){
         var tempRow : Int
-        var move_flag = false
+        var moveDone = false
+        var addDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
                 tempRow = row
                 if(isNotEmpty(numArray[row][column])){
                     while(downIsEmpty(tempRow,column)){
+                        if(tempRow == row){
+                            changedPosList.add(row*4+column)
+                            addDone = true
+                        }
                         moveDown(tempRow,column)
-                        move_flag = true
+                        moveDone = true
                         tempRow++
                     }
                     if(tempRow<=2){
@@ -184,16 +221,20 @@ class ClassicGameViewModel: ViewModel() {
                             numArray[tempRow][column] = 0
                         }
                     }
+                    if(addDone){
+                        changedPosList.add(tempRow*4+column)
+                        addDone = false
+                    }
                 }
 
             }
         }
-        if(move_flag){
+        moveAnimation(textArray,"Vertical")
+        if(moveDone){
             generateNum()
         }
-        updateGame(textArray)
         if(gameLose()){
-            Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
+            Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -417,42 +458,64 @@ class ClassicGameViewModel: ViewModel() {
         }
     }
 
-    private fun moveAnimation() {
-
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun moveAnimation(textArray: Array<Array<TextView>>, direction: String){
+//        for(i in 0 until changedPosList.size){
+//            Log.d("mao","i is $i,position is ${changedPosList[i]/4},${changedPosList[i]%4}")
+//        }
+        when(direction){
+            "Horizontal" -> {
+                for(i in 0 .. changedPosList.size-2 step 2){
+                    moveAnimationAchieve(textArray,
+                        changedPosList[i]/4,
+                        changedPosList[i]%4,
+                        changedPosList[i+1]%4-changedPosList[i]%4,
+                        "Horizontal"
+                    )
+                }
+            }
+            "Vertical" -> {
+                for(i in 0 .. changedPosList.size-2 step 2){
+                    moveAnimationAchieve(textArray,
+                        changedPosList[i]/4,
+                        changedPosList[i]%4,
+                        changedPosList[i+1]/4-changedPosList[i]/4,
+                        "Vertical"
+                    )
+                }
+            }
+            else -> {
+                Toast.makeText(pContext,"Invalid direction",Toast.LENGTH_SHORT).show()
+            }
+        }
+        changedPosList.clear()
     }
 
-    private fun moveAnimationAchieve(textArray: Array<Array<TextView>>,row:Int,column:Int,unit:Int,direction:String) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun moveAnimationAchieve(textArray: Array<Array<TextView>>, row:Int, column:Int, unit:Int, direction:String) {
         when(direction){
-            "Up" -> {
+            "Vertical" -> {
                 ObjectAnimator.ofFloat(textArray[row][column],
                     "translationY",
-                    -unit*constantManager.unitDistance).apply {
-                    duration = constantManager.animationMoveTime
-                    start()
+                    unit*constantManager.unitDistance).let {
+                    it.duration = constantManager.animationMoveTime
+                    it.start()
+                    it.doOnEnd {
+                        textArray[row][column].translationY = 0f
+                        updateGame(textArray)
+                    }
                 }
             }
-            "Down" -> {
-                ObjectAnimator.ofFloat(textArray[row][column],
-                    "translationY",
-                    unit*constantManager.unitDistance).apply {
-                    duration = constantManager.animationMoveTime
-                    start()
-                }
-            }
-            "Left" -> {
+            "Horizontal" -> {
                 ObjectAnimator.ofFloat(textArray[row][column],
                     "translationX",
-                    -unit*constantManager.unitDistance).apply {
-                    duration = constantManager.animationMoveTime
-                    start()
-                }
-            }
-            "Right" -> {
-                ObjectAnimator.ofFloat(textArray[row][column],
-                    "translationX",
-                    unit*constantManager.unitDistance).apply {
-                    duration = constantManager.animationMoveTime
-                    start()
+                    unit*constantManager.unitDistance).let {
+                    it.duration = constantManager.animationMoveTime
+                    it.start()
+                    it.doOnEnd {
+                        textArray[row][column].translationX = 0f
+                        updateGame(textArray)
+                    }
                 }
             }
             else -> {
@@ -460,6 +523,7 @@ class ClassicGameViewModel: ViewModel() {
             }
         }
     }
+
 
 
 
