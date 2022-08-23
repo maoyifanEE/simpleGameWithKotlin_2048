@@ -4,14 +4,13 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.util.Log
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
-import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.*
 
 
 class ClassicGameViewModel: ViewModel() {
@@ -55,7 +54,8 @@ class ClassicGameViewModel: ViewModel() {
     }
 
     //Add a new random number every time the user survive
-    fun generateNum(){
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun generateNum(textArray: Array<Array<TextView>>) {
         var randomPos:Int
         var done = false
         do{
@@ -65,6 +65,7 @@ class ClassicGameViewModel: ViewModel() {
                 done = true
             }
         }while (!done)
+        textArray[randomPos/4][randomPos%4].visibility = VISIBLE
 //        Log.d("mao","The random position is ${randomPos/4},${randomPos%4}")
     }
 
@@ -102,10 +103,11 @@ class ClassicGameViewModel: ViewModel() {
             }
         }
 
-        moveAnimation(textArray,"Horizontal")
+//        moveAnimation(textArray,"Horizontal")
         if(moveDone){
-            generateNum()
+            generateNum(textArray)
         }
+        updateGame(textArray)
         if(gameLose()){
             Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
         }
@@ -118,7 +120,7 @@ class ClassicGameViewModel: ViewModel() {
         var addDone = false
         storeLastStep()
         for(row in 0..3){
-            for(column in 0..3){
+            for(column in 3 downTo 0){
                 tempColumn = column
                 if(isNotEmpty(numArray[row][column])){
                     while(rightIsEmpty(row,tempColumn)){
@@ -144,10 +146,11 @@ class ClassicGameViewModel: ViewModel() {
 
             }
         }
-        moveAnimation(textArray,"Horizontal")
+//        moveAnimation(textArray,"Horizontal")
         if(moveDone){
-            generateNum()
+            generateNum(textArray)
         }
+        updateGame(textArray)
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -185,10 +188,11 @@ class ClassicGameViewModel: ViewModel() {
 
             }
         }
-        moveAnimation(textArray,"Vertical")
+//        moveAnimation(textArray,"Vertical")
         if(moveDone){
-            generateNum()
+            generateNum(textArray)
         }
+        updateGame(textArray)
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -200,16 +204,17 @@ class ClassicGameViewModel: ViewModel() {
     fun swipeDown(textArray: Array<Array<TextView>>){
         var tempRow : Int
         var moveDone = false
-        var addDone = false
+        var moveAddDone = false
+        var mergeAddDone = false
         storeLastStep()
-        for(row in 0..3){
+        for(row in 3 downTo 0){
             for(column in 0..3){
                 tempRow = row
                 if(isNotEmpty(numArray[row][column])){
                     while(downIsEmpty(tempRow,column)){
                         if(tempRow == row){
                             changedPosList.add(row*4+column)
-                            addDone = true
+                            moveAddDone = true
                         }
                         moveDown(tempRow,column)
                         moveDone = true
@@ -221,18 +226,19 @@ class ClassicGameViewModel: ViewModel() {
                             numArray[tempRow][column] = 0
                         }
                     }
-                    if(addDone){
+                    if(moveAddDone){
                         changedPosList.add(tempRow*4+column)
-                        addDone = false
+                        moveAddDone = false
                     }
                 }
 
             }
         }
-        moveAnimation(textArray,"Vertical")
+//        moveAnimation(textArray,"Vertical")
         if(moveDone){
-            generateNum()
+            generateNum(textArray)
         }
+        updateGame(textArray)
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -349,7 +355,13 @@ class ClassicGameViewModel: ViewModel() {
     private fun updateGame(textArray: Array<Array<TextView>>) {
         for(row in 0..3){
             for(column in 0..3){
+                textArray[row][column].visibility = VISIBLE
                 when (numArray[row][column]) {
+//                    0 -> {
+//                        textArray[row][column].text = "0"
+//                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[1].textColor)))
+//                        textArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
+//                    }
                     2 -> {
                         textArray[row][column].text = constantManager.numUnitList[0].num.toString()
                         textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[0].textColor)))
@@ -407,8 +419,7 @@ class ClassicGameViewModel: ViewModel() {
                     }
                     else -> {
                         textArray[row][column].text = ""
-                        textArray[row][column].setTextColor(pContext.getColor((constantManager.numUnitList[0].textColor)))
-                        textArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
+                        textArray[row][column].visibility = INVISIBLE
                     }
                 }
             }
@@ -463,6 +474,8 @@ class ClassicGameViewModel: ViewModel() {
 //        for(i in 0 until changedPosList.size){
 //            Log.d("mao","i is $i,position is ${changedPosList[i]/4},${changedPosList[i]%4}")
 //        }
+
+
         when(direction){
             "Horizontal" -> {
                 for(i in 0 .. changedPosList.size-2 step 2){
