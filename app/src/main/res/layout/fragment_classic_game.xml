@@ -446,6 +446,12 @@
         android:text="R"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/fragment_classicGame_btn_goToStartFragment"
+        android:text="主页"
+        app:layout_constraintTop_toBottomOf="@id/fragment_classicGame_btn_restart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

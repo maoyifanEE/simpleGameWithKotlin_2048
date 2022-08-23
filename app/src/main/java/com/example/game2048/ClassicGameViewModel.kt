@@ -36,10 +36,12 @@ class ClassicGameViewModel: ViewModel() {
                 textBackgroundArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
             }
         }
+
         for(row in 0..3){
             for(column in 0..3){
                 numArray[row][column] = 0
                 textArray[row][column].text = ""
+                textArray[row][column].visibility= VISIBLE
                 textArray[row][column].setBackgroundColor(pContext.getColor(androidx.appcompat.R.color.material_grey_600))
             }
         }

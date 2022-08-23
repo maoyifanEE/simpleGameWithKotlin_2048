@@ -12,7 +12,7 @@ open class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        goToFragment(ClassicGameFragment())
+        goToFragment(StartFragment())
 
     }
 

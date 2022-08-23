@@ -75,12 +75,14 @@ class ClassicGameFragment : Fragment() {
         val btnLeft = view.findViewById<Button>(R.id.fragment_classicGame_btn_left)
         val btnRight = view.findViewById<Button>(R.id.fragment_classicGame_btn_right)
         val btnRestart = view.findViewById<Button>(R.id.fragment_classicGame_btn_restart)
-
-
+        val btnGoToMenu = view.findViewById<Button>(R.id.fragment_classicGame_btn_goToStartFragment)
 
         gameViewModel.gameInit(textArray,textBackgroundArray)
         btnRestart.setOnClickListener {
             gameViewModel.gameInit(textArray, textBackgroundArray)
+        }
+        btnGoToMenu.setOnClickListener{
+            goToFragment(StartFragment())
         }
         btnUp.setOnClickListener {
             gameViewModel.swipeUp(textArray)
