@@ -11,12 +11,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.*
 
 
 class ClassicGameViewModel: ViewModel() {
     private val numArray = Array(4) { Array(4) { it -> 0 } }
     private val numLastStepArray = Array(4) { Array(4) { it -> 0 } }
-    private val changedPosList = mutableListOf<Int>() //偶数存储原位置，偶数+1存储改变后位置
+    private val moveChangedPosList = mutableListOf<Int>() //偶数存储原位置，偶数+1存储改变后位置
+    private val mergeChangePosList = mutableListOf<Int>()
     @SuppressLint("StaticFieldLeak")
     lateinit var pContext : Context
 
@@ -73,7 +75,8 @@ class ClassicGameViewModel: ViewModel() {
     fun swipeLeft(textArray: Array<Array<TextView>>){
         var tempColumn : Int
         var moveDone = false
-        var addDone = false
+        var moveAddDone = false
+        var moveMergeDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
@@ -81,8 +84,8 @@ class ClassicGameViewModel: ViewModel() {
                 if(isNotEmpty(numArray[row][column])){
                     while(leftIsEmpty(row,tempColumn)){
                         if(tempColumn == column){
-                            changedPosList.add(row*4+column)
-                            addDone = true
+                            moveChangedPosList.add(row*4+column)
+                            moveAddDone = true
                         }
                         moveLeft(row,tempColumn)
                         moveDone = true
@@ -90,24 +93,35 @@ class ClassicGameViewModel: ViewModel() {
                     }
                     if(tempColumn>=1){
                         if(numArray[row][tempColumn] == numArray[row][tempColumn-1]){
+                            moveMergeDone = true
+                            mergeChangePosList.add(row*4+tempColumn)
                             mergeLeftNum(row,tempColumn)
                             numArray[row][tempColumn] = 0
                         }
                     }
-                    if(addDone){
-                        changedPosList.add(row*4+tempColumn)
-                        addDone = false
+                    if(moveAddDone){
+                        moveChangedPosList.add(row*4+tempColumn)
+                        moveAddDone = false
+                    }
+                    if(moveMergeDone){
+                        moveChangedPosList.add(row*4+tempColumn-1)
+                        moveMergeDone = false
                     }
                 }
 
             }
         }
 
-//        moveAnimation(textArray,"Horizontal")
+        moveAnimation(textArray,"Horizontal")
         if(moveDone){
             generateNum(textArray)
         }
-        updateGame(textArray)
+        GlobalScope.launch {
+            withContext(Dispatchers.Main){
+                delay(100)
+                updateGame(textArray)
+            }
+        }
         if(gameLose()){
             Toast.makeText(pContext,"Lose",Toast.LENGTH_SHORT).show()
         }
@@ -117,7 +131,8 @@ class ClassicGameViewModel: ViewModel() {
     fun swipeRight(textArray: Array<Array<TextView>>){
         var tempColumn : Int
         var moveDone = false
-        var addDone = false
+        var moveAddDone = false
+        var moveMergeDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 3 downTo 0){
@@ -125,8 +140,8 @@ class ClassicGameViewModel: ViewModel() {
                 if(isNotEmpty(numArray[row][column])){
                     while(rightIsEmpty(row,tempColumn)){
                         if(tempColumn == column){
-                            changedPosList.add(row*4+column)
-                            addDone = true
+                            moveChangedPosList.add(row*4+column)
+                            moveAddDone = true
                         }
                         moveRight(row,tempColumn)
                         moveDone = true
@@ -134,23 +149,34 @@ class ClassicGameViewModel: ViewModel() {
                     }
                     if(tempColumn<=2){
                         if(numArray[row][tempColumn] == numArray[row][tempColumn+1]){
+                            mergeChangePosList.add(row*4+tempColumn)
+                            moveMergeDone =true
                             mergeRightNum(row,tempColumn)
                             numArray[row][tempColumn] = 0
                         }
                     }
-                    if(addDone){
-                        changedPosList.add(row*4+tempColumn)
-                        addDone = false
+                    if(moveAddDone){
+                        moveChangedPosList.add(row*4+tempColumn)
+                        moveAddDone = false
+                    }
+                    if(moveMergeDone){
+                        moveChangedPosList.add(row*4+tempColumn+1)
+                        moveMergeDone = false
                     }
                 }
 
             }
         }
-//        moveAnimation(textArray,"Horizontal")
+        moveAnimation(textArray,"Horizontal")
         if(moveDone){
             generateNum(textArray)
         }
-        updateGame(textArray)
+        GlobalScope.launch {
+            withContext(Dispatchers.Main){
+                delay(100)
+                updateGame(textArray)
+            }
+        }
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -159,7 +185,8 @@ class ClassicGameViewModel: ViewModel() {
     fun swipeUp(textArray: Array<Array<TextView>>){
         var tempRow : Int
         var moveDone = false
-        var addDone = false
+        var moveAddDone = false
+        var moveMergeDone = false
         storeLastStep()
         for(row in 0..3){
             for(column in 0..3){
@@ -167,8 +194,8 @@ class ClassicGameViewModel: ViewModel() {
                 if(isNotEmpty(numArray[row][column])){
                     while(upIsEmpty(tempRow,column)){
                         if(tempRow == row){
-                            changedPosList.add(row*4+column)
-                            addDone = true
+                            moveChangedPosList.add(row*4+column)
+                            moveAddDone = true
                         }
                         moveUp(tempRow,column)
                         moveDone = true
@@ -176,23 +203,34 @@ class ClassicGameViewModel: ViewModel() {
                     }
                     if(tempRow>=1){
                         if(numArray[tempRow][column] == numArray[tempRow-1][column]){
+                            mergeChangePosList.add(tempRow*4+column)
+                            moveMergeDone = true
                             mergeUpNum(tempRow,column)
                             numArray[tempRow][column] = 0
                         }
                     }
-                    if(addDone){
-                        changedPosList.add(tempRow*4+column)
-                        addDone = false
+                    if(moveAddDone){
+                        moveChangedPosList.add(tempRow*4+column)
+                        moveAddDone = false
+                    }
+                    if(moveMergeDone){
+                        moveChangedPosList.add((tempRow-1)*4+column)
+                        moveMergeDone = false
                     }
                 }
 
             }
         }
-//        moveAnimation(textArray,"Vertical")
+        moveAnimation(textArray,"Vertical")
         if(moveDone){
             generateNum(textArray)
         }
-        updateGame(textArray)
+        GlobalScope.launch {
+            withContext(Dispatchers.Main){
+                delay(100)
+                updateGame(textArray)
+            }
+        }
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -205,7 +243,7 @@ class ClassicGameViewModel: ViewModel() {
         var tempRow : Int
         var moveDone = false
         var moveAddDone = false
-        var mergeAddDone = false
+        var moveMergeDone = false
         storeLastStep()
         for(row in 3 downTo 0){
             for(column in 0..3){
@@ -213,7 +251,7 @@ class ClassicGameViewModel: ViewModel() {
                 if(isNotEmpty(numArray[row][column])){
                     while(downIsEmpty(tempRow,column)){
                         if(tempRow == row){
-                            changedPosList.add(row*4+column)
+                            moveChangedPosList.add(row*4+column)
                             moveAddDone = true
                         }
                         moveDown(tempRow,column)
@@ -222,23 +260,34 @@ class ClassicGameViewModel: ViewModel() {
                     }
                     if(tempRow<=2){
                         if(numArray[tempRow][column] == numArray[tempRow+1][column]){
+                            mergeChangePosList.add(tempRow*4+column)
+                            moveMergeDone = true
                             mergeDownNum(tempRow,column)
                             numArray[tempRow][column] = 0
                         }
                     }
                     if(moveAddDone){
-                        changedPosList.add(tempRow*4+column)
+                        moveChangedPosList.add(tempRow*4+column)
                         moveAddDone = false
+                    }
+                    if(moveMergeDone){
+                        moveChangedPosList.add((tempRow+1)*4+column)
+                        moveMergeDone = false
                     }
                 }
 
             }
         }
-//        moveAnimation(textArray,"Vertical")
+        moveAnimation(textArray,"Vertical")
         if(moveDone){
             generateNum(textArray)
         }
-        updateGame(textArray)
+        GlobalScope.launch {
+            withContext(Dispatchers.Main){
+                delay(100)
+                updateGame(textArray)
+            }
+        }
         if(gameLose()){
             Toast.makeText(pContext,"Lose", Toast.LENGTH_SHORT).show()
         }
@@ -478,21 +527,37 @@ class ClassicGameViewModel: ViewModel() {
 
         when(direction){
             "Horizontal" -> {
-                for(i in 0 .. changedPosList.size-2 step 2){
+                for(i in 0 .. moveChangedPosList.size-2 step 2){
                     moveAnimationAchieve(textArray,
-                        changedPosList[i]/4,
-                        changedPosList[i]%4,
-                        changedPosList[i+1]%4-changedPosList[i]%4,
+                        moveChangedPosList[i]/4,
+                        moveChangedPosList[i]%4,
+                        moveChangedPosList[i+1]%4-moveChangedPosList[i]%4,
+                        "Horizontal"
+                    )
+                }
+                for(i in 0 .. mergeChangePosList.size-2 step 2){
+                    moveAnimationAchieve(textArray,
+                        mergeChangePosList[i]/4,
+                        mergeChangePosList[i]%4,
+                        mergeChangePosList[i+1]%4-mergeChangePosList[i]%4,
                         "Horizontal"
                     )
                 }
             }
             "Vertical" -> {
-                for(i in 0 .. changedPosList.size-2 step 2){
+                for(i in 0 .. moveChangedPosList.size-2 step 2){
                     moveAnimationAchieve(textArray,
-                        changedPosList[i]/4,
-                        changedPosList[i]%4,
-                        changedPosList[i+1]/4-changedPosList[i]/4,
+                        moveChangedPosList[i]/4,
+                        moveChangedPosList[i]%4,
+                        moveChangedPosList[i+1]/4-moveChangedPosList[i]/4,
+                        "Vertical"
+                    )
+                }
+                for(i in 0 .. mergeChangePosList.size-2 step 2){
+                    moveAnimationAchieve(textArray,
+                        mergeChangePosList[i]/4,
+                        mergeChangePosList[i]%4,
+                        mergeChangePosList[i+1]/4-mergeChangePosList[i]/4,
                         "Vertical"
                     )
                 }
@@ -501,7 +566,8 @@ class ClassicGameViewModel: ViewModel() {
                 Toast.makeText(pContext,"Invalid direction",Toast.LENGTH_SHORT).show()
             }
         }
-        changedPosList.clear()
+        moveChangedPosList.clear()
+        mergeChangePosList.clear()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
