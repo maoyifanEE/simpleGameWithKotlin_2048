@@ -16,8 +16,14 @@ public class Constant {
     )
     val unitDistance = 335f
     val animationMoveTime = 200L
+    val gestureDirectionStandard = 300
 }
 
 val constantManager = Constant()
 
+
+enum class GestureDirection(val value: Int) {UP(0),DOWN(1),LEFT(2),RIGHT(3)}
 data class NumUnit(val num : Int, val textColor : Int, val backgroundColor:Int)
+
+
+

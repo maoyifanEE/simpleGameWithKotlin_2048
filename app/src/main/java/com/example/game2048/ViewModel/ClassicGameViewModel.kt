@@ -1,4 +1,4 @@
-package com.example.game2048
+package com.example.game2048.ViewModel
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.ViewModel
+import com.example.game2048.constantManager
 import kotlinx.coroutines.*
 
 
@@ -578,7 +579,7 @@ class ClassicGameViewModel: ViewModel() {
             "Vertical" -> {
                 ObjectAnimator.ofFloat(textArray[row][column],
                     "translationY",
-                    unit*constantManager.unitDistance).let {
+                    unit* constantManager.unitDistance).let {
                     it.duration = constantManager.animationMoveTime
                     it.start()
                     it.doOnEnd {
@@ -590,7 +591,7 @@ class ClassicGameViewModel: ViewModel() {
             "Horizontal" -> {
                 ObjectAnimator.ofFloat(textArray[row][column],
                     "translationX",
-                    unit*constantManager.unitDistance).let {
+                    unit* constantManager.unitDistance).let {
                     it.duration = constantManager.animationMoveTime
                     it.start()
                     it.doOnEnd {

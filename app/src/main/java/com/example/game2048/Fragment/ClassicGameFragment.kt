@@ -10,8 +10,11 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.game2048.ClassicGameViewModel
+import androidx.lifecycle.get
+import com.example.game2048.GestureDirection
+import com.example.game2048.ViewModel.ClassicGameViewModel
 import com.example.game2048.R
+import com.example.game2048.ViewModel.MainActivityViewModel
 
 class ClassicGameFragment : Fragment() {
 
@@ -27,7 +30,8 @@ class ClassicGameFragment : Fragment() {
         val gameSharedPref = requireActivity().getSharedPreferences("gamePref",0)
         val gameEditor = gameSharedPref.edit()
 
-        val gameViewModel = ViewModelProvider(this).get(ClassicGameViewModel::class.java)
+        val gameViewModel = ViewModelProvider(this)[ClassicGameViewModel::class.java]
+        val mainActivityViewModel = ViewModelProvider(requireActivity())[MainActivityViewModel::class.java]
 
         context?.let { gameViewModel.getContext(it) }
 
@@ -84,6 +88,25 @@ class ClassicGameFragment : Fragment() {
         btnGoToMenu.setOnClickListener{
             goToFragment(StartFragment())
         }
+
+        mainActivityViewModel.gestureDirection.observe(viewLifecycleOwner){
+            when(mainActivityViewModel.gestureDirection.value){
+                GestureDirection.UP.value -> {
+                    gameViewModel.swipeUp(textArray)
+                }
+                GestureDirection.DOWN.value -> {
+                    gameViewModel.swipeDown(textArray)
+                }
+                GestureDirection.LEFT.value -> {
+                    gameViewModel.swipeLeft(textArray)
+                }
+                GestureDirection.RIGHT.value -> {
+                    gameViewModel.swipeRight(textArray)
+                }
+            }
+        }
+
+
         btnUp.setOnClickListener {
             gameViewModel.swipeUp(textArray)
         }
@@ -106,6 +129,7 @@ class ClassicGameFragment : Fragment() {
 
         return view
     }
+
 
 
     private fun goToFragment(fragment: Fragment) {
