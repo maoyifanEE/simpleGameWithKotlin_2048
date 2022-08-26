@@ -15,6 +15,7 @@ import com.example.game2048.ViewModel.MainActivityViewModel
 
 open class MainActivity : AppCompatActivity() {
     private var gestureDetector: GestureDetector? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,7 +28,7 @@ open class MainActivity : AppCompatActivity() {
             if(swMusicPlayer.isChecked){
 
             }else{
-                
+
             }
         }
 
@@ -88,4 +89,5 @@ open class MainActivity : AppCompatActivity() {
             .addToBackStack(null)
             .commit()
     }
+    
 }
