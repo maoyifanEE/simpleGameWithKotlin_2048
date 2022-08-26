@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,16 @@ open class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val mainActivityViewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+
+        val swMusicPlayer = findViewById<Switch>(R.id.startFragment_sw_music)
+
+        swMusicPlayer.setOnClickListener{
+            if(swMusicPlayer.isChecked){
+
+            }else{
+                
+            }
+        }
 
         gestureDetector = GestureDetector(this@MainActivity,
             object : GestureDetector.SimpleOnGestureListener() {
