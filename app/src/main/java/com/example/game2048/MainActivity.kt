@@ -22,15 +22,7 @@ open class MainActivity : AppCompatActivity() {
 
         val mainActivityViewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
-        val swMusicPlayer = findViewById<Switch>(R.id.startFragment_sw_music)
-
-        swMusicPlayer.setOnClickListener{
-            if(swMusicPlayer.isChecked){
-
-            }else{
-
-            }
-        }
+                
 
         gestureDetector = GestureDetector(this@MainActivity,
             object : GestureDetector.SimpleOnGestureListener() {
