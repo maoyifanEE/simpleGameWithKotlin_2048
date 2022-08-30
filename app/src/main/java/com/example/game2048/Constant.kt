@@ -17,6 +17,7 @@ public class Constant {
     val unitDistance = 335f
     val animationMoveTime = 200L
     val gestureDirectionStandard = 300
+    val updateGameTimeDelay = 50L
 }
 
 val constantManager = Constant()

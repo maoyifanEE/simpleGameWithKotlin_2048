@@ -121,7 +121,7 @@ class ClassicGameViewModel: ViewModel() {
         }
         GlobalScope.launch {
             withContext(Dispatchers.Main){
-                delay(50)
+                delay(constantManager.updateGameTimeDelay)
                 updateGame(textArray)
             }
         }
@@ -176,7 +176,7 @@ class ClassicGameViewModel: ViewModel() {
         }
         GlobalScope.launch {
             withContext(Dispatchers.Main){
-                delay(50)
+                delay(constantManager.updateGameTimeDelay)
                 updateGame(textArray)
             }
         }
@@ -230,7 +230,7 @@ class ClassicGameViewModel: ViewModel() {
         }
         GlobalScope.launch {
             withContext(Dispatchers.Main){
-                delay(50)
+                delay(constantManager.updateGameTimeDelay)
                 updateGame(textArray)
             }
         }
@@ -287,7 +287,7 @@ class ClassicGameViewModel: ViewModel() {
         }
         GlobalScope.launch {
             withContext(Dispatchers.Main){
-                delay(50)
+                delay(constantManager.updateGameTimeDelay)
                 updateGame(textArray)
             }
         }
