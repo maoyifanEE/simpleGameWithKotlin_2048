@@ -1,5 +1,6 @@
 package com.example.game2048.Fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,12 @@ class StartFragment : Fragment() {
 
         btnClassicGame.setOnClickListener {
             goToFragment(ClassicGameFragment())
+        }
+        btnTimeLimitGame.setOnClickListener {
+            AlertDialog.Builder(context)
+                .setMessage("not open yet")
+                .create()
+                .show()
         }
 
         return view
